@@ -53,6 +53,9 @@ const App = () => {
             setNewName('')
             setNewPhone('')
           })
+          .catch(error => {
+            notify(error.response.data.error, 'error')
+          })
       }
       return
     }
@@ -69,6 +72,9 @@ const App = () => {
         setPersons(persons.concat(returnedPerson))
         setNewName('')
         setNewPhone('')
+      })
+      .catch(error => {
+        notify(error.response.data.error, 'error')
       })
   }
 

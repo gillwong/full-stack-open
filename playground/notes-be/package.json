@@ -10,16 +10,20 @@
     "build:ui": "rm -rf dist && cd ../notes-fe && npm run build && cp -r dist ../notes-be",
     "deploy": "fly deploy",
     "deploy:full": "npm run build:ui && npm run deploy",
-    "logs:prod": "fly logs"
+    "logs:prod": "fly logs",
+    "lint": "eslint ."
   },
   "author": "gillwong",
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.18.2"
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "mongoose": "^7.3.1"
   },
   "devDependencies": {
     "@flydotio/dockerfile": "^0.2.15",
+    "eslint": "^8.43.0",
     "nodemon": "^2.0.22"
   }
 }
