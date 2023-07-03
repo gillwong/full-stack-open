@@ -3,15 +3,17 @@ Content-Type: application/json
 
 {
   "content": "VS code rest client is handy",
-  "important": true
+  "important": true,
+  "userId": "64a143f8d150094e57c7b40a"
 }
 
 ###
 POST http://localhost:3001/api/notes
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imprbm93czIiLCJpZCI6IjY0YTE0NDNlZDE1MDA5NGU1N2M3YjQxNiIsImlhdCI6MTY4ODI5NTM1N30.OQJzyaOiicFGI80QO0QryeIzvzTCr6sBbUpF_kbHwnA
 
 {
-  "content": "This is not important."
+  "content": "This is not so important."
 }
 
 ###

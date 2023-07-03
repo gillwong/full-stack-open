@@ -1,3 +1,5 @@
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const helper = require('./test_helper')
@@ -5,24 +7,54 @@ const helper = require('./test_helper')
 const app = require('../app')
 const api = supertest(app)
 const Blog = require('../models/blog')
+const User = require('../models/user')
+
+let token
 
 beforeEach(async () => {
+  await User.deleteMany({})
+  token = undefined
   await Blog.deleteMany({})
+
+  
+  const testUser = {
+    username: 'test',
+    name: 'Test User',
+    password: '12345678',
+  }
+  const saltRounds = 10
+  const passwordHash = await bcrypt.hash(testUser.password, saltRounds)
+  
+  const userObj = new User({
+    username: testUser.username,
+    name: testUser.name,
+    passwordHash,
+  })
+  const savedUser = await userObj.save()
+  
+  token = jwt.sign(
+    {
+      username: savedUser.username,
+      id: savedUser._id,
+    },
+    process.env.SECRET
+  )
+
   for (const blog of helper.initialBlogs) {
-    const blogObj = new Blog(blog)
+    const blogObj = new Blog({ ...blog, user: savedUser._id })
     await blogObj.save()
   }
 })
-
-test('all blogs are returned', async () => {
-  const response = await api
+  
+  test('all blogs are returned', async () => {
+    const response = await api
     .get('/api/blogs')
     .expect(200)
     .expect('Content-Type', /application\/json/)
-
-  expect(response.body).toHaveLength(helper.initialBlogs.length)
-})
-
+    
+    expect(response.body).toHaveLength(helper.initialBlogs.length)
+  })
+  
 test('unique properties \'id\' of blogs are defined', async () => {
   const response = await api.get('/api/blogs')
   response.body.forEach((blog) => {
@@ -40,6 +72,7 @@ test('a valid blog can be added', async () => {
 
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -67,6 +100,7 @@ test(
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -91,6 +125,7 @@ test(
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(newBlog)
       .expect(400)
   }
@@ -102,6 +137,7 @@ test('a blog with valid id can be deleted', async () => {
 
   await api
     .delete(`/api/blogs/${blogToDelete.id}`)
+    .set('Authorization', `Bearer ${token}`)
     .expect(204)
   
   const blogsAfter = await helper.blogsInDb()

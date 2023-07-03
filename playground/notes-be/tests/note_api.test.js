@@ -1,10 +1,13 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 const helper = require('./test_helper')
 const app = require('../app')
 const api = supertest(app)
 
 const Note = require('../models/note')
+const User = require('../models/user')
 
 beforeEach(async () => {
   await Note.deleteMany({})
@@ -37,6 +40,36 @@ describe('when there is initially some notes saved', () => {
 })
 
 describe('addition of a new note', () => {
+  let token
+
+  beforeEach(async () => {
+    await User.deleteMany({})
+    token = undefined
+
+    const testUser = {
+      username: 'test',
+      name: 'Test User',
+      password: 'test',
+    }
+    const saltRounds = 10
+    const passwordHash = await bcrypt.hash(testUser.password, saltRounds)
+
+    const userObject = new User({
+      username: testUser.username,
+      name: testUser.name,
+      passwordHash
+    })
+    const savedUser = await userObject.save()
+
+    token = jwt.sign(
+      {
+        username: savedUser.username,
+        id: savedUser._id,
+      },
+      process.env.SECRET
+    )
+  })
+
   test('succeeds with valid data', async () => {
     const newNote = {
       content: 'async/await simplifies making async calls',
@@ -46,6 +79,7 @@ describe('addition of a new note', () => {
     await api
       .post('/api/notes')
       .send(newNote)
+      .set('Authorization', `Bearer ${token}`)
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
@@ -61,6 +95,7 @@ describe('addition of a new note', () => {
 
     await api
       .post('/api/notes')
+      .set('Authorization', `Bearer ${token}`)
       .send(newNote)
       .expect(400)
 
