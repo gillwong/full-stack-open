@@ -54,14 +54,21 @@ notesRouter.post('/', async (request, response) => {
   response.status(201).json(savedNote)
 })
 
-notesRouter.put('/:id', (request, response, next) => {
-  Note.findByIdAndUpdate(
+notesRouter.put('/:id', async (request, response) => {
+  const body = request.body
+  const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'token invalid' })
+  }
+
+  const user = await User.findById(decodedToken.id)
+
+  const updatedNote = await Note.findByIdAndUpdate(
     request.params.id,
-    { ...request.body },
+    { ...body, userId: user._id },
     { new: true, runValidators: true, context: 'query' }
   )
-    .then(updatedNote => response.json(updatedNote))
-    .catch(error => next(error))
+  response.json(updatedNote)
 })
 
 module.exports = notesRouter

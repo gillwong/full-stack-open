@@ -9,7 +9,7 @@ const LoginForm = ({
         username
         <input
           type="text"
-          name="text"
+          name="username"
           value={username}
           onChange={({ target }) => setUsername(target.value)}
           required

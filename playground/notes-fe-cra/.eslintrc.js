@@ -1,4 +1,3 @@
-/* eslint-env node */
 module.exports = {
   'env': {
     'browser': true,
@@ -14,7 +13,7 @@ module.exports = {
     'ecmaFeatures': {
       'jsx': true
     },
-    'ecmaVersion': 2020,
+    'ecmaVersion': 2018,
     'sourceType': 'module'
   },
   'plugins': [

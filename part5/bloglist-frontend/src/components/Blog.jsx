@@ -14,7 +14,7 @@ const Blog = ({ blog, user, handleLike, handleDelete }) => {
   const toggleVisibility = () => setCompactVisiblity(!compactVisiblity)
 
   const blogDetails = () => (
-    <div>
+    <div className='blogDetails'>
       <a href={blog.url} target="_blank" rel="noreferrer">
         {blog.url}
       </a>
@@ -29,7 +29,7 @@ const Blog = ({ blog, user, handleLike, handleDelete }) => {
   )
 
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} data-cy="blog">
       {blog.title} {blog.author}
       <button type="button" onClick={toggleVisibility}>
         {compactVisiblity ? 'view' : 'hide'}
